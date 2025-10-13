@@ -1,3 +1,22 @@
+# v0.5.0
+
+You can now use `#[culit(local)]` which will expand to literals at `custom_literal` (must be in scope),
+rather than `crate::custom_literal`
+
+```rust
+#[culit(local)]
+fn kilometer() {
+    assert_eq!(10.4km, Kilometer(10.4))
+    // expands to: custom_literal::km!(10.4)
+}
+
+#[culit]
+fn kilomile() {
+    assert_eq!(10.4km, Kilomile(10.4))
+    // expands to: crate::custom_literal::km!(10.4)
+}
+```
+
 # v0.4.0
 
 Renamed `decimal` to `float` to avoid confusion.
