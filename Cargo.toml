@@ -6,8 +6,8 @@ description = "Custom literals"
 rust-version = "1.79"
 authors = ["Nik Revenco <pm@nikrev.com>"]
 repository = "https://github.com/nik-rev/culit"
-keywords = ["custom", "literal", "proc-macro"]
-categories = ["rust-patterns", "no-std", "no-std::no-alloc"]
+keywords = ["custom", "literal", "proc-macro", "math", "science"]
+categories = ["science", "rust-patterns", "development-tools", "mathematics", "embedded"]
 license = "MIT OR Apache-2.0"
 
 [dependencies]
