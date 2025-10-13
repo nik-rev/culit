@@ -103,7 +103,7 @@
 //!
 //! // works on functions, constants, modules, everything!
 //! #[culit]
-//! const TIME: Duration = 100d + 11h + 8m + 7s;
+//! const TIME: Duration = 100d;
 //!
 //! mod custom_literal {
 //!     pub mod integer {
@@ -245,31 +245,35 @@
 //! You can do this with `#[culit(local)]`, which expands `10.4km` into `custom_literal::km!(10.4)`.
 //!
 //! ```rust
-//! # use culit::culit;
-//!
-//! # #[derive(PartialEq)]
+//! # #[derive(PartialEq, Debug)]
 //! struct Kilomile(f32);
 //!
-//! # #[derive(PartialEq)]
+//! # #[derive(PartialEq, Debug)]
 //! struct Kilometer(f32);
 //!
 //! mod custom_literal {
-//!     macro_rules! km {
-//!         ($value:literal) => {
-//!             $crate::Kilomile($value)
-//!         }
-//!     }
-//!     pub(crate) use km;
-//! }
-//!
-//! mod inner {
-//!     mod custom_literal {
+//!     pub mod float {
 //!         macro_rules! km {
 //!             ($value:literal) => {
-//!                 $crate::Kilometer($value)
+//!                 $crate::Kilomile($value)
 //!             }
 //!         }
 //!         pub(crate) use km;
+//!     }
+//! }
+//!
+//! mod inner {
+//!     # use culit::culit;
+//!     # use super::{Kilomile, Kilometer};
+//!     mod custom_literal {
+//!         pub mod float {
+//!             macro_rules! km {
+//!                 ($value:literal) => {
+//!                     $crate::Kilometer($value)
+//!                 }
+//!             }
+//!             pub(crate) use km;
+//!         }
 //!     }
 //!
 //!     #[culit(local)]
@@ -284,6 +288,7 @@
 //!         // expands to: crate::custom_literal::km!(10.4)
 //!     }
 //! }
+//! # fn main() {}
 //! ```
 //!
 //! The module `custom_literal` must be in scope.

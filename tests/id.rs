@@ -162,10 +162,31 @@ fn byte_str() {
     assert_eq!(br#"hello"#id, stringify!(b"hello"));
 }
 
-#[test]
-#[culit]
-fn char() {
-    assert_eq!('a'id, stringify!('a'));
+mod local {
+    use culit::culit;
+
+    mod custom_literal {
+        pub mod character {
+            macro_rules! id {
+                ($value:literal) => {
+                    "a"
+                };
+            }
+            pub(crate) use id;
+        }
+    }
+
+    #[test]
+    #[culit]
+    fn char() {
+        assert_eq!('a'id, stringify!('a'));
+    }
+
+    #[culit(local)]
+    #[test]
+    fn char_local() {
+        assert_eq!('a'id, "a");
+    }
 }
 
 #[test]

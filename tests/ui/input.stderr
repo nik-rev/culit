@@ -1,10 +1,8 @@
-error: custom attribute panicked
- --> tests/ui/input.rs:9:1
+error: expected `#[culit(local)]` or `#[culit]`
+ --> tests/ui/input.rs:9:9
   |
 9 | #[culit(no input allowed)]
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = help: message: `#[culit]` does not take any arguments between `(...)`
+  |         ^^
 
 error[E0601]: `main` function not found in crate `$CRATE`
   --> tests/ui/input.rs:10:13
