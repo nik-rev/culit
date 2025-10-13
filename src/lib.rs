@@ -101,6 +101,10 @@
 //!     );
 //! }
 //!
+//! // works on functions, constants, modules, everything!
+//! #[culit]
+//! const TIME: Duration = 100d + 11h + 8m + 7s;
+//!
 //! mod custom_literal {
 //!     pub mod integer {
 //!         // day
