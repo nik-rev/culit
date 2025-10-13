@@ -22,7 +22,7 @@ Note: `culit` does not have any dependencies such as `syn` or `quote`, and it is
 
 ## Example
 
-A [`NonZeroUsize`](std::num::NonZeroUsize) literal that fails to compile if it is `0`: `100nzusize`
+A [`NonZeroUsize`](https://doc.rust-lang.org/stable/core/num/nonzero/type.NonZeroUsize.html) literal that fails to compile if it is `0`: `100nzusize`
 
 ```rust
 use culit::culit;
@@ -88,7 +88,7 @@ mod custom_literal {
 }
 ```
 
-[`Duration`](std::time::Duration) literals: `100m`, `2h`...
+[`Duration`](https://doc.rust-lang.org/stable/core/time/struct.Duration.html) literals: `100m`, `2h`...
 
 ```rust
 use culit::culit;
@@ -104,6 +104,10 @@ fn main() {
         + Duration::from_secs(7)
     );
 }
+
+// works on functions, constants, modules, everything!
+#[culit]
+const TIME: Duration = 100d;
 
 mod custom_literal {
     pub mod integer {
@@ -235,6 +239,58 @@ mod custom_literal {
     }
 }
 ```
+
+## Use `custom_literals` from local scope, not the crate root
+
+The `#[culit]` macro expands `10.4km` to `crate::custom_literal::km!(10.4)`.
+That's neat since custom literals are global across the whole crate.
+
+But it's sometimes desireable to have different literals expand to different things.
+You can do this with `#[culit(local)]`, which expands `10.4km` into `custom_literal::km!(10.4)`.
+
+```rust
+struct Kilomile(f32);
+
+struct Kilometer(f32);
+
+mod custom_literal {
+    pub mod float {
+        macro_rules! km {
+            ($value:literal) => {
+                $crate::Kilomile($value)
+            }
+        }
+        pub(crate) use km;
+    }
+}
+
+mod inner {
+    mod custom_literal {
+        pub mod float {
+            macro_rules! km {
+                ($value:literal) => {
+                    $crate::Kilometer($value)
+                }
+            }
+            pub(crate) use km;
+        }
+    }
+
+    #[culit(local)]
+    fn kilometer() {
+        assert_eq!(10.4km, Kilometer(10.4))
+        // expands to: custom_literal::km!(10.4)
+    }
+
+    #[culit]
+    fn kilomile() {
+        assert_eq!(10.4km, Kilomile(10.4))
+        // expands to: crate::custom_literal::km!(10.4)
+    }
+}
+```
+
+The module `custom_literal` must be in scope.
 
 ## Nightly
 
