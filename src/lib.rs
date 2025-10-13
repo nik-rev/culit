@@ -232,6 +232,58 @@
 //! }
 //! ```
 //!
+//! # Use `custom_literals` from local scope, not the crate root
+//!
+//! The `#[culit]` macro expands `10.4km` to `crate::custom_literal::km!(10.4)`.
+//! That's neat since custom literals are global across the whole crate.
+//!
+//! But it's sometimes desireable to have different literals expand to different things.
+//! You can do this with `#[culit(local)]`, which expands `10.4km` into `custom_literal::km!(10.4)`.
+//!
+//! ```rust
+//! # use culit::culit;
+//!
+//! # #[derive(PartialEq)]
+//! struct Kilomile(f32);
+//!
+//! # #[derive(PartialEq)]
+//! struct Kilometer(f32);
+//!
+//! mod custom_literal {
+//!     macro_rules! km {
+//!         ($value:literal) => {
+//!             $crate::Kilomile($value)
+//!         }
+//!     }
+//!     pub(crate) use km;
+//! }
+//!
+//! mod inner {
+//!     mod custom_literal {
+//!         macro_rules! km {
+//!             ($value:literal) => {
+//!                 $crate::Kilometer($value)
+//!             }
+//!         }
+//!         pub(crate) use km;
+//!     }
+//!
+//!     #[culit(local)]
+//!     fn kilometer() {
+//!         assert_eq!(10.4km, Kilometer(10.4))
+//!         // expands to: custom_literal::km!(10.4)
+//!     }
+//!
+//!     #[culit]
+//!     fn kilomile() {
+//!         assert_eq!(10.4km, Kilomile(10.4))
+//!         // expands to: crate::custom_literal::km!(10.4)
+//!     }
+//! }
+//! ```
+//!
+//! The module `custom_literal` must be in scope.
+//!
 //! # Nightly
 //!
 //! You need to use `#[culit]` attribute everywhere you want to use these literals. On nightly, you can apply it on the module:
