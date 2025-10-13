@@ -334,15 +334,32 @@ use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenSt
 /// For more information, see the [crate-level](crate) documentation
 #[proc_macro_attribute]
 pub fn culit(args: TokenStream, input: TokenStream) -> TokenStream {
-    if !args.is_empty() {
-        panic!("`#[culit]` does not take any arguments between `(...)`")
-    }
+    let mut args = args.into_iter();
 
-    transform(input)
+    // If `is_local`, expands `10.4km` to `custom_literal::km!(10.4)`.
+    // Otherwise, expands to `crate::custom_literal::km!(10.4)`
+    let is_local = match args.next() {
+        Some(TokenTree::Ident(ident)) if ident.to_string() == "local" => {
+            if let Some(tt) = args.next() {
+                return CompileError::new(tt.span(), "unexpected token")
+                    .into_iter()
+                    .collect();
+            }
+            true
+        }
+        Some(tt) => {
+            return CompileError::new(tt.span(), "expected `#[culit(local)]` or `#[culit]`")
+                .into_iter()
+                .collect()
+        }
+        None => false,
+    };
+
+    transform(input, is_local)
 }
 
 /// Recursively replaces all literals in the `TokenStream` with a call to `crate::custom_literal::$literal_type::$suffix!($ts)`
-fn transform(ts: TokenStream) -> TokenStream {
+fn transform(ts: TokenStream, is_local: bool) -> TokenStream {
     let mut output = TokenStream::new();
 
     for tt in ts {
@@ -393,7 +410,7 @@ fn transform(ts: TokenStream) -> TokenStream {
                             " would not be able to parse it"
                         ));
 
-                        output.extend(expand_custom_literal(
+                        expand_custom_literal(
                             lit_name::INTEGER,
                             suffix,
                             span,
@@ -403,10 +420,12 @@ fn transform(ts: TokenStream) -> TokenStream {
                                     " would not be able to parse it"
                                 ),
                             ))),
-                        ));
+                            is_local,
+                            &mut output,
+                        );
                     }
                     // crate::custom_literal::str::$suffix!($value)
-                    litrs::Literal::String(string_lit) => output.extend(expand_custom_literal(
+                    litrs::Literal::String(string_lit) => expand_custom_literal(
                         lit_name::STRING,
                         suffix,
                         span,
@@ -414,7 +433,9 @@ fn transform(ts: TokenStream) -> TokenStream {
                             // $value
                             TokenTree::Literal(Literal::string(string_lit.value())).with_span(span),
                         ),
-                    )),
+                        is_local,
+                        &mut output,
+                    ),
                     litrs::Literal::Float(float_lit) => {
                         if FLOAT_SUFFIXES.contains(&suffix) {
                             output.extend([TokenTree::Literal(tt_lit)].into_iter());
@@ -427,7 +448,7 @@ fn transform(ts: TokenStream) -> TokenStream {
                             continue;
                         }
 
-                        output.extend(expand_custom_literal(
+                        expand_custom_literal(
                             lit_name::FLOAT,
                             suffix,
                             span,
@@ -437,10 +458,12 @@ fn transform(ts: TokenStream) -> TokenStream {
                                     " would not be able to parse it"
                                 )),
                             )),
-                        ));
+                            is_local,
+                            &mut output,
+                        );
                     }
                     // crate::custom_literal::char::$suffix!($value)
-                    litrs::Literal::Char(char_lit) => output.extend(expand_custom_literal(
+                    litrs::Literal::Char(char_lit) => expand_custom_literal(
                         lit_name::CHARACTER,
                         suffix,
                         span,
@@ -449,9 +472,11 @@ fn transform(ts: TokenStream) -> TokenStream {
                             TokenTree::Literal(Literal::character(char_lit.value()))
                                 .with_span(span),
                         ),
-                    )),
+                        is_local,
+                        &mut output,
+                    ),
                     // crate::custom_literal::byte_char::$suffix!($value)
-                    litrs::Literal::Byte(byte_lit) => output.extend(expand_custom_literal(
+                    litrs::Literal::Byte(byte_lit) => expand_custom_literal(
                         lit_name::BYTE_CHARACTER,
                         suffix,
                         span,
@@ -460,10 +485,12 @@ fn transform(ts: TokenStream) -> TokenStream {
                             TokenTree::Literal(Literal::byte_character(byte_lit.value()))
                                 .with_span(span),
                         ),
-                    )),
+                        is_local,
+                        &mut output,
+                    ),
                     // crate::custom_literal::byte_str::$suffix!($value)
                     litrs::Literal::ByteString(byte_string_lit) => {
-                        output.extend(expand_custom_literal(
+                        expand_custom_literal(
                             lit_name::BYTE_STRING,
                             suffix,
                             span,
@@ -472,10 +499,12 @@ fn transform(ts: TokenStream) -> TokenStream {
                                 TokenTree::Literal(Literal::byte_string(byte_string_lit.value()))
                                     .with_span(span),
                             ),
-                        ))
+                            is_local,
+                            &mut output,
+                        )
                     }
                     litrs::Literal::CString(cstring_lit) => {
-                        output.extend(expand_custom_literal(
+                        expand_custom_literal(
                             lit_name::C_STRING,
                             suffix,
                             span,
@@ -484,7 +513,9 @@ fn transform(ts: TokenStream) -> TokenStream {
                                 TokenTree::Literal(Literal::c_string(cstring_lit.value()))
                                     .with_span(span),
                             ),
-                        ))
+                            is_local,
+                            &mut output,
+                        )
                     }
                     litrs::Literal::Bool(_bool_lit) => {
                         unreachable!(
@@ -498,7 +529,7 @@ fn transform(ts: TokenStream) -> TokenStream {
                     [TokenTree::Group(Group::new(
                         group.delimiter(),
                         // Recurse
-                        transform(group.stream()),
+                        transform(group.stream(), is_local),
                     ))]
                     .into_iter(),
                 )
@@ -516,11 +547,18 @@ fn expand_custom_literal(
     suffix: &str,
     span: Span,
     ts: TokenStream,
-) -> [TokenTree; 12] {
-    [
-        TokenTree::Ident(Ident::new("crate", Span::call_site())),
-        TokenTree::Punct(Punct::new(':', Spacing::Joint)),
-        TokenTree::Punct(Punct::new(':', Spacing::Joint)),
+    is_local: bool,
+    output: &mut TokenStream,
+) {
+    if !is_local {
+        output.extend([
+            TokenTree::Ident(Ident::new("crate", Span::call_site())),
+            TokenTree::Punct(Punct::new(':', Spacing::Joint)),
+            TokenTree::Punct(Punct::new(':', Spacing::Joint)),
+        ]);
+    }
+
+    output.extend([
         TokenTree::Ident(Ident::new("custom_literal", Span::call_site())),
         TokenTree::Punct(Punct::new(':', Spacing::Joint)),
         TokenTree::Punct(Punct::new(':', Spacing::Joint)),
@@ -530,7 +568,7 @@ fn expand_custom_literal(
         TokenTree::Ident(Ident::new(suffix, span)),
         TokenTree::Punct(Punct::new('!', Spacing::Joint)).with_span(span),
         TokenTree::Group(Group::new(proc_macro::Delimiter::Parenthesis, ts)).with_span(span),
-    ]
+    ]);
 }
 
 /// `.into_iter()` generates `compile_error!($message)` at `$span`
