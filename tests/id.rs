@@ -165,7 +165,7 @@ fn byte_str() {
 mod local {
     use culit::culit;
 
-    mod custom_literal {
+    mod local_custom_literal {
         pub mod character {
             macro_rules! id {
                 ($value:literal) => {
@@ -182,7 +182,7 @@ mod local {
         assert_eq!('a'id, stringify!('a'));
     }
 
-    #[culit(local)]
+    #[culit(local_custom_literal)]
     #[test]
     fn char_local() {
         assert_eq!('a'id, "a");

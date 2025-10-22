@@ -236,62 +236,11 @@
 //! }
 //! ```
 //!
-//! # Use `custom_literals` from local scope, not the crate root
+//! # Custom module
 //!
-//! The `#[culit]` macro expands `10.4km` to `crate::custom_literal::km!(10.4)`.
-//! That's neat since custom literals are global across the whole crate.
-//!
-//! But it's sometimes desireable to have different literals expand to different things.
-//! You can do this with `#[culit(local)]`, which expands `10.4km` into `custom_literal::km!(10.4)`.
-//!
-//! ```rust
-//! # #[derive(PartialEq, Debug)]
-//! struct Kilomile(f32);
-//!
-//! # #[derive(PartialEq, Debug)]
-//! struct Kilometer(f32);
-//!
-//! mod custom_literal {
-//!     pub mod float {
-//!         macro_rules! km {
-//!             ($value:literal) => {
-//!                 $crate::Kilomile($value)
-//!             }
-//!         }
-//!         pub(crate) use km;
-//!     }
-//! }
-//!
-//! mod inner {
-//!     # use culit::culit;
-//!     # use super::{Kilomile, Kilometer};
-//!     mod custom_literal {
-//!         pub mod float {
-//!             macro_rules! km {
-//!                 ($value:literal) => {
-//!                     $crate::Kilometer($value)
-//!                 }
-//!             }
-//!             pub(crate) use km;
-//!         }
-//!     }
-//!
-//!     #[culit(local)]
-//!     fn kilometer() {
-//!         assert_eq!(10.4km, Kilometer(10.4))
-//!         // expands to: custom_literal::km!(10.4)
-//!     }
-//!
-//!     #[culit]
-//!     fn kilomile() {
-//!         assert_eq!(10.4km, Kilomile(10.4))
-//!         // expands to: crate::custom_literal::km!(10.4)
-//!     }
-//! }
-//! # fn main() {}
-//! ```
-//!
-//! The module `custom_literal` must be in scope.
+//! We look for custom literals in the `crate::custom_literal` module.
+//! You can choose a custom module by passing arguments to the `culit` macro.
+//! The default usage of `#[culit]` is identical to `#[culit(crate::custom_literal)]`
 //!
 //! # Nightly
 //!
@@ -339,32 +288,23 @@ use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenSt
 /// For more information, see the [crate-level](crate) documentation
 #[proc_macro_attribute]
 pub fn culit(args: TokenStream, input: TokenStream) -> TokenStream {
-    let mut args = args.into_iter();
-
-    // If `is_local`, expands `10.4km` to `custom_literal::km!(10.4)`.
-    // Otherwise, expands to `crate::custom_literal::km!(10.4)`
-    let is_local = match args.next() {
-        Some(TokenTree::Ident(ident)) if ident.to_string() == "local" => {
-            if let Some(tt) = args.next() {
-                return CompileError::new(tt.span(), "unexpected token")
-                    .into_iter()
-                    .collect();
-            }
-            true
-        }
-        Some(tt) => {
-            return CompileError::new(tt.span(), "expected `#[culit(local)]` or `#[culit]`")
-                .into_iter()
-                .collect()
-        }
-        None => false,
-    };
-
-    transform(input, is_local)
+    transform(
+        input,
+        if args.is_empty() {
+            TokenStream::from_iter([
+                TokenTree::Ident(Ident::new("crate", Span::call_site())),
+                TokenTree::Punct(Punct::new(':', Spacing::Joint)),
+                TokenTree::Punct(Punct::new(':', Spacing::Joint)),
+                TokenTree::Ident(Ident::new("custom_literal", Span::call_site())),
+            ])
+        } else {
+            args
+        },
+    )
 }
 
 /// Recursively replaces all literals in the `TokenStream` with a call to `crate::custom_literal::$literal_type::$suffix!($ts)`
-fn transform(ts: TokenStream, is_local: bool) -> TokenStream {
+fn transform(ts: TokenStream, path: TokenStream) -> TokenStream {
     let mut output = TokenStream::new();
 
     for tt in ts {
@@ -425,7 +365,7 @@ fn transform(ts: TokenStream, is_local: bool) -> TokenStream {
                                     " would not be able to parse it"
                                 ),
                             ))),
-                            is_local,
+                            path.clone(),
                             &mut output,
                         );
                     }
@@ -438,7 +378,7 @@ fn transform(ts: TokenStream, is_local: bool) -> TokenStream {
                             // $value
                             TokenTree::Literal(Literal::string(string_lit.value())).with_span(span),
                         ),
-                        is_local,
+                        path.clone(),
                         &mut output,
                     ),
                     litrs::Literal::Float(float_lit) => {
@@ -463,7 +403,7 @@ fn transform(ts: TokenStream, is_local: bool) -> TokenStream {
                                     " would not be able to parse it"
                                 )),
                             )),
-                            is_local,
+                            path.clone(),
                             &mut output,
                         );
                     }
@@ -477,7 +417,7 @@ fn transform(ts: TokenStream, is_local: bool) -> TokenStream {
                             TokenTree::Literal(Literal::character(char_lit.value()))
                                 .with_span(span),
                         ),
-                        is_local,
+                        path.clone(),
                         &mut output,
                     ),
                     // crate::custom_literal::byte_char::$suffix!($value)
@@ -490,7 +430,7 @@ fn transform(ts: TokenStream, is_local: bool) -> TokenStream {
                             TokenTree::Literal(Literal::byte_character(byte_lit.value()))
                                 .with_span(span),
                         ),
-                        is_local,
+                        path.clone(),
                         &mut output,
                     ),
                     // crate::custom_literal::byte_str::$suffix!($value)
@@ -504,7 +444,7 @@ fn transform(ts: TokenStream, is_local: bool) -> TokenStream {
                                 TokenTree::Literal(Literal::byte_string(byte_string_lit.value()))
                                     .with_span(span),
                             ),
-                            is_local,
+                            path.clone(),
                             &mut output,
                         )
                     }
@@ -518,7 +458,7 @@ fn transform(ts: TokenStream, is_local: bool) -> TokenStream {
                                 TokenTree::Literal(Literal::c_string(cstring_lit.value()))
                                     .with_span(span),
                             ),
-                            is_local,
+                            path.clone(),
                             &mut output,
                         )
                     }
@@ -534,7 +474,7 @@ fn transform(ts: TokenStream, is_local: bool) -> TokenStream {
                     [TokenTree::Group(Group::new(
                         group.delimiter(),
                         // Recurse
-                        transform(group.stream(), is_local),
+                        transform(group.stream(), path.clone()),
                     ))]
                     .into_iter(),
                 )
@@ -552,19 +492,11 @@ fn expand_custom_literal(
     suffix: &str,
     span: Span,
     ts: TokenStream,
-    is_local: bool,
+    path: TokenStream,
     output: &mut TokenStream,
 ) {
-    if !is_local {
-        output.extend([
-            TokenTree::Ident(Ident::new("crate", Span::call_site())),
-            TokenTree::Punct(Punct::new(':', Spacing::Joint)),
-            TokenTree::Punct(Punct::new(':', Spacing::Joint)),
-        ]);
-    }
-
+    output.extend(path);
     output.extend([
-        TokenTree::Ident(Ident::new("custom_literal", Span::call_site())),
         TokenTree::Punct(Punct::new(':', Spacing::Joint)),
         TokenTree::Punct(Punct::new(':', Spacing::Joint)),
         TokenTree::Ident(Ident::new(literal_type, Span::call_site())),
