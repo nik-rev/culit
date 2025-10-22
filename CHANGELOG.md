@@ -1,3 +1,9 @@
+# v0.6.0
+
+The default invocation of `#[culit]` is identical to `#[culit(crate::custom_literal)]`,
+so it is now possible to override where we look for custom literals. For example,
+`#[culit(foo::bar)]` looks for literals in the `foo::bar` module.
+
 # v0.5.0
 
 You can now use `#[culit(local)]` which will expand to literals at `custom_literal` (must be in scope),
