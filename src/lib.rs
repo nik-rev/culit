@@ -11,7 +11,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! culit = "0.5"
+//! culit = "0.6"
 //! ```
 //!
 //! Note: `culit` does not have any dependencies such as `syn` or `quote`, and it is a simple mapping `SourceCode -> SourceCode`, so compile-speeds will be very fast.
