@@ -290,7 +290,7 @@ use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenSt
 pub fn culit(args: TokenStream, input: TokenStream) -> TokenStream {
     transform(
         input,
-        if args.is_empty() {
+        &if args.is_empty() {
             TokenStream::from_iter([
                 TokenTree::Ident(Ident::new("crate", Span::call_site())),
                 TokenTree::Punct(Punct::new(':', Spacing::Joint)),
@@ -304,7 +304,7 @@ pub fn culit(args: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 /// Recursively replaces all literals in the `TokenStream` with a call to `crate::custom_literal::$literal_type::$suffix!($ts)`
-fn transform(ts: TokenStream, path: TokenStream) -> TokenStream {
+fn transform(ts: TokenStream, path: &TokenStream) -> TokenStream {
     let mut output = TokenStream::new();
 
     for tt in ts {
@@ -474,7 +474,7 @@ fn transform(ts: TokenStream, path: TokenStream) -> TokenStream {
                     [TokenTree::Group(Group::new(
                         group.delimiter(),
                         // Recurse
-                        transform(group.stream(), path.clone()),
+                        transform(group.stream(), path),
                     ))]
                     .into_iter(),
                 )
