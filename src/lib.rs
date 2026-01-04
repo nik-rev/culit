@@ -470,14 +470,13 @@ fn transform(ts: TokenStream, path: &TokenStream) -> TokenStream {
                 }
             }
             TokenTree::Group(group) => {
-                output.extend(
-                    [TokenTree::Group(Group::new(
-                        group.delimiter(),
-                        // Recurse
-                        transform(group.stream(), path),
-                    ))]
-                    .into_iter(),
-                )
+                let mut g = Group::new(
+                    group.delimiter(),
+                    // Recurse
+                    transform(group.stream(), path),
+                );
+                g.set_span(group.span());
+                output.extend([TokenTree::Group(g)].into_iter())
             }
             next_tt => output.extend([next_tt]),
         }
