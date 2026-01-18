@@ -51,7 +51,7 @@
 //!
 //! Hovering over the custom literals shows documentation for the macro that generates them. You can also do "goto definition". It's quite nice!
 //!
-//! ![IDE Support](https://raw.githubusercontent.com/nik-rev/culit/71f4a2b32eb87b955d0c953bd3e90e80bd6a938d/ide_support.png)
+//! ![IDE Support](https://raw.githubusercontent.com/nik-rev/culit/main/assets/ide_support.png)
 //!
 //! # More Examples
 //!
