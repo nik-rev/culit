@@ -56,7 +56,7 @@ fn integer_literals() {
     assert_eq!(0007id, 7);
     assert_eq!(0010id, 10);
 
-    // Hexadecimal no undescore
+    // Hexadecimal no underscore
     assert_eq!(0x1id, 1);
     assert_eq!(0x10id, 16);
     assert_eq!(0x100id, 256);
