@@ -66,7 +66,11 @@ fn kilomile() {
 
 ## [v0.4.2] - 2025-09-22
 
-[v0.4.2]: https://github.com/nik-rev/culit/compare/v0.4.0...v0.4.2
+[v0.4.2]: https://github.com/nik-rev/culit/compare/v0.4.1...v0.4.2
+
+## [v0.4.1] - 2025-09-22
+
+[v0.4.1]: https://github.com/nik-rev/culit/compare/v0.4.0...v0.4.1
 
 ## [v0.4.0] - 2025-09-22
 
@@ -86,7 +90,11 @@ But Rust does not make this distinction, so in order to raise the minimum possib
 
 ## [v0.3.2] - 2025-09-22
 
-[v0.3.2]: https://github.com/nik-rev/culit/compare/v0.3.0...v0.3.2
+[v0.3.2]: https://github.com/nik-rev/culit/compare/v0.3.1...v0.3.2
+
+## [v0.3.1] - 2025-09-22
+
+[v0.3.1]: https://github.com/nik-rev/culit/compare/v0.3.0...v0.3.1
 
 ## [v0.3.0] - 2025-09-22
 
