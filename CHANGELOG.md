@@ -213,7 +213,3 @@ Limitation: Each of these may not exceed `340_282_366_920_938_463_463_374_607_43
 ## [v0.1.1] - 2025-09-21
 
 [v0.1.1]: https://github.com/nik-rev/culit/compare/v0.1.0...v0.1.1
-
-## [v0.1.0] - 2025-09-21
-
-[v0.1.0]: https://github.com/nik-rev/culit/releases/v0.1.0
