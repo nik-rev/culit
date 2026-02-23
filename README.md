@@ -16,7 +16,7 @@
 cargo-reedme: info-end -->
 
 [![crates.io](https://img.shields.io/crates/v/culit?style=flat-square&logo=rust)](https://crates.io/crates/culit)
-[![docs.rs](https://img.shields.io/badge/docs.rs-culit-blue?style=flat-square&logo=docs.rs)](https://docs.rs/culit)
+[![docs.rs](https://img.shields.io/docsrs/culit?style=flat-square&logo=docs.rs)](https://docs.rs/culit)
 ![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)
 ![msrv](https://img.shields.io/badge/msrv-1.79-blue?style=flat-square&logo=rust)
 [![github](https://img.shields.io/github/stars/nik-rev/culit)](https://github.com/nik-rev/culit)
@@ -27,7 +27,6 @@ But did you know that syntactically *any* literal can have a suffix? **And did y
 This crate provides an attribute macro [`#[culit]`](https://docs.rs/culit/0.6.4/culit/attr.culit.html) for “Custom Literals”. When applied to any statement, it enables using custom literals in that statement.
 
 ```toml
-[dependencies]
 culit = "0.6"
 ```
 

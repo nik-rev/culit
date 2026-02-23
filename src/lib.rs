@@ -1,4 +1,4 @@
-#![doc = nik_rev::badges!("culit")]
+#![doc = nik_rev::badges!(repo = "culit")]
 //!
 //! You probably know that numbers in Rust can be suffixed to specify their type, e.g. `100i32`.
 //! But did you know that syntactically *any* literal can have a suffix? **And did you know that the suffix can be whatever you want**?
