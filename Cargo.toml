@@ -13,10 +13,12 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 # std doesn't provide us a way to get contents of a `proc_macro::Literal`
 litrs = "0.5"
-nik-rev = "0.1.0"
 
 [dev-dependencies]
 trybuild = "1.0"
 
 [lib]
 proc-macro = true
+
+[build-dependencies]
+nik-rev = "0.1.7"

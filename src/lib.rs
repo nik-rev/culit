@@ -1,11 +1,11 @@
-#![doc = nik_rev::badges!(repo = "culit")]
+#![doc = include_str!(concat!(env!("OUT_DIR"), "/GENERATED_BADGES"))]
 //!
 //! You probably know that numbers in Rust can be suffixed to specify their type, e.g. `100i32`.
 //! But did you know that syntactically *any* literal can have a suffix? **And did you know that the suffix can be whatever you want**?
 //!
 //! This crate provides an attribute macro [`#[culit]`](macro@culit) for "Custom Literals". When applied to any statement, it enables using custom literals in that statement.
 //!
-#![doc = nik_rev::add_dependency!()]
+#![doc = include_str!(concat!(env!("OUT_DIR"), "/GENERATED_ADD_DEP"))]
 //!
 //! Note: `culit` does not have any dependencies such as `syn` or `quote`, and it is a simple mapping `SourceCode -> SourceCode`, so compile-speeds will be very fast.
 //!
