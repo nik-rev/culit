@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/nik-rev/culit/compare/v0.6.5...HEAD
+[Unreleased]: https://github.com/nik-rev/culit/compare/v0.6.6...HEAD
+
+## [v0.6.6] - 2026-02-27
+
+[v0.6.6]: https://github.com/nik-rev/culit/compare/v0.6.5...v0.6.6
 
 - Documentation improvements
 
