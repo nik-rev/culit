@@ -32,7 +32,7 @@ culit = "0.6"
 
 Note: `culit` does not have any dependencies such as `syn` or `quote`, and it is a simple mapping `SourceCode -> SourceCode`, so compile-speeds will be very fast.
 
-# Example
+## Example
 
 A [`NonZeroUsize`](https://doc.rust-lang.org/stable/core/num/nonzero/type.NonZeroUsize.html) literal that fails to compile if it is `0`: `100nzusize`
 
@@ -63,14 +63,13 @@ mod custom_literal {
 }
 ```
 
-# IDE Support
+## IDE Support
 
 Hovering over the custom literals shows documentation for the macro that generates them. You can also do “goto definition”. It’s quite nice!
 
 ![IDE Support](https://raw.githubusercontent.com/nik-rev/culit/main/assets/ide_support.png)
 
-# More Examples
-
+## More Examples
 
 Python-like f-strings: `"hello {name}"f`
 
@@ -160,7 +159,7 @@ mod custom_literal {
 
 The possibilities are *endless!*
 
-# Details
+## Details
 
 `#[culit]` replaces every literal that has a custom suffix with a call to the macro
 at `crate::custom_literal::<type>::<suffix>!($value)`, where `$value` is the literal with the suffix stripped:
@@ -180,7 +179,7 @@ Notes:
 - Built-in suffixes like `usize` and `f32` do **not** expand, so you cannot overwrite them.
 - Escapes are fully processed, so there’s no `raw_byte_str`. `rb#"f\oo"#` just becomes `b"f\\oo"`
 
-## Skeleton
+### Skeleton
 
 Here’s a skeleton for the `custom_literal` module which must exist at `crate::custom_literal`.
 This module adds a new literal for every type of literal:
@@ -252,13 +251,13 @@ mod custom_literal {
 }
 ```
 
-# Custom module
+## Custom module
 
 We look for custom literals in the `crate::custom_literal` module.
 You can choose a custom module by passing arguments to the `culit` macro.
 The default usage of `#[culit]` is identical to `#[culit(crate::custom_literal)]`
 
-# Nightly
+## Nightly
 
 You need to use `#[culit]` attribute everywhere you want to use these literals. On nightly, you can apply it on the module:
 

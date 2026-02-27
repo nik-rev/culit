@@ -7,7 +7,6 @@ name = "culit"
 version = "0.6.5"
 dependencies = [
  "litrs",
- "nik-rev",
  "trybuild",
 ]
 
@@ -56,12 +55,6 @@ name = "memchr"
 version = "2.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
-
-[[package]]
-name = "nik-rev"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76018729da4fc1da86828e3e0f56f4b4fbf8da1aa42dc50ad1d00de5bdb419d3"
 
 [[package]]
 name = "proc-macro2"

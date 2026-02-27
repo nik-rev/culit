@@ -19,6 +19,3 @@ trybuild = "1.0"
 
 [lib]
 proc-macro = true
-
-[build-dependencies]
-nik-rev = "0.1.7"
