@@ -2,7 +2,7 @@
 #![doc = concat!("[![docs.rs](https://img.shields.io/docsrs/", env!("CARGO_PKG_NAME"), "?style=flat-square&logo=docs.rs)](https://docs.rs/", env!("CARGO_PKG_NAME"), ")")]
 #![doc = "![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)"]
 #![doc = concat!("![msrv](https://img.shields.io/badge/msrv-", env!("CARGO_PKG_RUST_VERSION"), "-blue?style=flat-square&logo=rust)")]
-#![doc = concat!("[![github](https://img.shields.io/github/stars/nik-rev/", env!("CARGO_PKG_NAME"), ")](https://github.com/nik-rev/", env!("CARGO_PKG_NAME"), ")")]
+//! [![github](https://img.shields.io/github/stars/nik-rev/culit)](https://github.com/nik-rev/culit)
 //!
 //! You probably know that numbers in Rust can be suffixed to specify their type, e.g. `100i32`.
 //! But did you know that syntactically *any* literal can have a suffix? **And did you know that the suffix can be whatever you want**?
