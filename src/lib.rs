@@ -240,19 +240,14 @@
 //! You can choose a custom module by passing arguments to the `culit` macro.
 //! The default usage of `#[culit]` is identical to `#[culit(crate::custom_literal)]`
 //!
-//! # Nightly
+//! # Global Import
 //!
-//! You need to use `#[culit]` attribute everywhere you want to use these literals. On nightly, you can apply it on the module:
+//! This will make `#[culit]` globally accessible in your entire crate, without needing to import it:
 //!
-//! ```ignore
-//! #![feature(custom_inner_attributes)]
-//! #![feature(proc_macro_hygiene)]
-//! #![culit::culit]
 //! ```
-//!
-//! While this *works*, I wouldn't recommend it - currently rust-analyzer is unable to properly work with custom inner attributes
-//! that modify the whole crate. For example, if you write `0nzusize` which produces a compiler error, the span of the error will point to
-//! the macro `crate::custom_literal::int::nzusize` but *not* the actual `0nzusize`, which makes it very hard to debug these
+//! #[macro_use(culit)]
+//! extern crate culit;
+//! ```
 #![allow(clippy::needless_doctest_main)]
 
 use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
