@@ -250,7 +250,15 @@
 //! ```
 #![allow(clippy::needless_doctest_main)]
 
-use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
+use proc_macro::Delimiter;
+use proc_macro::Group;
+use proc_macro::Ident;
+use proc_macro::Literal;
+use proc_macro::Punct;
+use proc_macro::Spacing;
+use proc_macro::Span;
+use proc_macro::TokenStream;
+use proc_macro::TokenTree;
 
 /// Supports using custom literals such as `10km` defined at `crate::custom_literal::int::km`
 ///
@@ -363,17 +371,20 @@ fn transform(ts: TokenStream, path: &TokenStream) -> TokenStream {
                         );
                     }
                     // crate::custom_literal::str::$suffix!($value)
-                    litrs::Literal::String(string_lit) => expand_custom_literal(
-                        lit_name::STRING,
-                        suffix,
-                        span,
-                        TokenStream::from(
-                            // $value
-                            TokenTree::Literal(Literal::string(string_lit.value())).with_span(span),
-                        ),
-                        path.clone(),
-                        &mut output,
-                    ),
+                    litrs::Literal::String(string_lit) => {
+                        expand_custom_literal(
+                            lit_name::STRING,
+                            suffix,
+                            span,
+                            TokenStream::from(
+                                // $value
+                                TokenTree::Literal(Literal::string(string_lit.value()))
+                                    .with_span(span),
+                            ),
+                            path.clone(),
+                            &mut output,
+                        )
+                    }
                     litrs::Literal::Float(float_lit) => {
                         if FLOAT_SUFFIXES.contains(&suffix) {
                             output.extend([TokenTree::Literal(tt_lit)].into_iter());
@@ -401,31 +412,35 @@ fn transform(ts: TokenStream, path: &TokenStream) -> TokenStream {
                         );
                     }
                     // crate::custom_literal::char::$suffix!($value)
-                    litrs::Literal::Char(char_lit) => expand_custom_literal(
-                        lit_name::CHARACTER,
-                        suffix,
-                        span,
-                        TokenStream::from(
-                            // $value
-                            TokenTree::Literal(Literal::character(char_lit.value()))
-                                .with_span(span),
-                        ),
-                        path.clone(),
-                        &mut output,
-                    ),
+                    litrs::Literal::Char(char_lit) => {
+                        expand_custom_literal(
+                            lit_name::CHARACTER,
+                            suffix,
+                            span,
+                            TokenStream::from(
+                                // $value
+                                TokenTree::Literal(Literal::character(char_lit.value()))
+                                    .with_span(span),
+                            ),
+                            path.clone(),
+                            &mut output,
+                        )
+                    }
                     // crate::custom_literal::byte_char::$suffix!($value)
-                    litrs::Literal::Byte(byte_lit) => expand_custom_literal(
-                        lit_name::BYTE_CHARACTER,
-                        suffix,
-                        span,
-                        TokenStream::from(
-                            // $value
-                            TokenTree::Literal(Literal::byte_character(byte_lit.value()))
-                                .with_span(span),
-                        ),
-                        path.clone(),
-                        &mut output,
-                    ),
+                    litrs::Literal::Byte(byte_lit) => {
+                        expand_custom_literal(
+                            lit_name::BYTE_CHARACTER,
+                            suffix,
+                            span,
+                            TokenStream::from(
+                                // $value
+                                TokenTree::Literal(Literal::byte_character(byte_lit.value()))
+                                    .with_span(span),
+                            ),
+                            path.clone(),
+                            &mut output,
+                        )
+                    }
                     // crate::custom_literal::byte_str::$suffix!($value)
                     litrs::Literal::ByteString(byte_string_lit) => {
                         expand_custom_literal(
